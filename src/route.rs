@@ -133,10 +133,7 @@ impl<'a, State: Clone + Send + Sync + 'static> Route<'a, State> {
     /// }
     /// ```
     pub fn serve_dir(&mut self, dir: impl AsRef<Path>) -> io::Result<()> {
-        // Verify path exists, return error if it doesn't.
-        let dir = dir.as_ref().to_owned().canonicalize()?;
-        let prefix = self.path().to_string();
-        self.at("*").get(ServeDir::new(prefix, dir));
+        self.at("*file_path").get(ServeDir::new(dir, "file_path")?);
         Ok(())
     }
 

@@ -7,14 +7,18 @@ use std::path::{Path, PathBuf};
 use std::{ffi::OsStr, io};
 
 pub(crate) struct ServeDir {
-    prefix: String,
     dir: PathBuf,
+    param: String,
+
 }
 
 impl ServeDir {
     /// Create a new instance of `ServeDir`.
-    pub(crate) fn new(prefix: String, dir: PathBuf) -> Self {
-        Self { prefix, dir }
+    pub(crate) fn new(dir: impl AsRef<Path>, param: &str) -> io::Result<Self> {
+        Ok(Self { 
+            dir: dir.as_ref().to_owned().canonicalize()?, 
+            param: param.to_string()
+        })
     }
 }
 
@@ -24,9 +28,8 @@ where
     State: Clone + Send + Sync + 'static,
 {
     async fn call(&self, req: Request<State>) -> Result {
-        let path = req.url().path();
-        let path = path.strip_prefix(&self.prefix).unwrap();
-        let path = path.trim_start_matches('/');
+        let path = req.param(&self.param)?.trim_start_matches('/');
+
         let mut file_path = self.dir.clone();
         for p in Path::new(path) {
             if p == OsStr::new(".") {
