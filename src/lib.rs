@@ -65,7 +65,6 @@
 #[cfg(feature = "cookies")]
 mod cookies;
 mod endpoint;
-mod fs;
 mod middleware;
 mod redirect;
 mod request;
